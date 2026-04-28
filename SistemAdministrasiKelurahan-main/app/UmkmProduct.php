@@ -27,11 +27,11 @@ class UmkmProduct extends Model
                 ->orWhere('description', 'like', '%'.$search.'%');
         });
 
-        $query->when($filters['category'] ?? false, fn($query, $category) =>
-            $query->whereHas('category', fn($query) =>
-                $query->where('category', $category)
-            )
-        );
+        $query->when($filters['category'] ?? false, function($query, $category) {
+            return $query->whereHas('category', function($query) use ($category) {
+                $query->where('category', $category);
+            });
+        });
     }
 
     public function category() {

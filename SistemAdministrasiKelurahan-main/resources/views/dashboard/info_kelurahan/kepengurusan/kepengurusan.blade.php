@@ -126,8 +126,8 @@
                                     <!-- NIPD : {{ $st->nipd }} -->
                                 </td>
                                 <td class=" text-center">
-                                    {{ $st->villager->birth_place }},
-                                    {{ date('d F Y', strtotime($st->villager->birth_date)) }}
+                                    {{ $st->villager->birth_place ?? '-' }},
+                                    {{ $st->villager ? date('d F Y', strtotime($st->villager->birth_date)) : '-' }}
                                 </td>
                                 <td class=" text-center">
                                     {{ $st->villager->villagerSex->sex ?? '-' }}

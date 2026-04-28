@@ -32,24 +32,24 @@ class VillagerController extends Controller
      */
     public function index()
     {
-
         // menghitung total data penduduk
-        $totalVillager = count(Villager::get());
+        $totalVillager = Villager::count();
 
-        // menghitung persentase penduduk yg aktif dari total penduduk
-        $activeVillager = count(Villager::where('life_status_id', 1)->where('user_id', '!=', null)->get());
-        $activePercentage = ($activeVillager / $totalVillager) * 100;
+        // menghitung jumlah penduduk aktif
+        $activeVillager = Villager::where('life_status_id', 1)
+            ->whereNotNull('user_id')
+            ->count();
+        $activePercentage = $totalVillager > 0 ? ($activeVillager / $totalVillager) * 100 : 0;
 
-        // menghitung persentase penduduk yg tidak aktif dari total penduduk
-        $notActiveVillager = count(Villager::where('life_status_id', 1)->where('user_id', '==', null)->get());
-        $notActivePercentage = ($notActiveVillager / $totalVillager) * 100;
+        // menghitung jumlah penduduk tidak aktif
+        $notActiveVillager = Villager::where('life_status_id', 1)
+            ->whereNull('user_id')
+            ->count();
+        $notActivePercentage = $totalVillager > 0 ? ($notActiveVillager / $totalVillager) * 100 : 0;
 
-        // mengambil data penduduk dan ditampilkan 10 saja per pagination
-        $villagers = Villager::latest()->paginate(15);
-        // $villagers = Villager::latest()->simplePaginate(10);
-        // $villagers = Villager::latest()->paginate(10)->fragment('villagers');
+        // mengambil data penduduk, tampilkan 15 per halaman
+        $villagers = Villager::orderBy('id', 'desc')->paginate(15);
 
-        // return $villagers;
         return view('dashboard.penduduk.penduduk', compact(
             'villagers',
             'totalVillager',

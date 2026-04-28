@@ -7,6 +7,7 @@ use App\Article;
 use App\Villager;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -103,7 +104,7 @@ class DashboardController extends Controller
         $userId = Auth::user()->id;
 
         // ambil role user yang sedang login berdasarkan id user
-        $userRoleId = \DB::table('model_has_roles')->where('model_id', $userId)->value('role_id');
+        $userRoleId = DB::table('model_has_roles')->where('model_id', $userId)->value('role_id');
 
         // ambil menu yang boleh diakses user berdasarkan role user
         return Permission::select('permissions.id', 'permissions.name')

@@ -3,16 +3,16 @@
 @section('content')
 
 <?php
-    $data=[
-        'icon' => "pe-7s-note",
-        'judul' => "Edit Artikel",
-        'link' => route('manajemen-artikel.artikel') ,
-        'page1' => "Artikel",
-        'page2' => "/ Edit",
-        'page3' => "/ ".$article->title
-    ]
+    $data = [
+        'icon'   => "pe-7s-note",
+        'judul'  => "Edit Artikel",
+        'link'   => route('manajemen-artikel.artikel'),
+        'page1'  => "Artikel",
+        'page2'  => "/ Edit",
+        'page3'  => "/ ".$article->title
+    ];
 ?>
-@include('dashboard.layouts.page-title',$data)
+@include('dashboard.layouts.page-title', $data)
 
 <div class="tab-content">
     <div class="tab-pane tabs-animation fade show active" role="tabpanel">
@@ -21,8 +21,7 @@
                 <h5 class="card-title font-weight-bold mb-4 mt-2" style="font-size: large;">Edit Artikel</h5>
                 <div tabindex="-1" class="dropdown-divider"></div>
 
-                <form action="{{ route('manajemen-artikel.artikel.update', $article->id) }}" method="POST"
-                      enctype="multipart/form-data">
+                <form action="{{ route('manajemen-artikel.artikel.update', $article->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('patch')
 
@@ -103,14 +102,9 @@
                                 <label for="tags">Tag</label>
                                 <select name="tags[]" id="tags"
                                         class="mb-2 form-control select2 @error('tags') is-invalid @enderror" multiple>
-                                    @forelse ($tags as $tag)
-                                        <option value="{{ $tag->id }}"
-                                            {{ in_array($tag->id, old('tags', $tagCheck)) ? 'selected' : '' }}>
-                                            {{ $tag->name_tag }}
-                                        </option>
-                                    @empty
-                                        <option>Data tag belum ada</option>
-                                    @endforelse
+                                    @foreach($selectedTags as $tag)
+                                        <option value="{{ $tag }}" selected>{{ $tag }}</option>
+                                    @endforeach
                                 </select>
                                 @error('tags')
                                     <span class="invalid-feedback mt-2" role="alert">
@@ -142,6 +136,7 @@
                                                  style="max-height: 120px; border-radius: 6px;">
                                         </div>
                                     @endif
+                                    <small class="form-text text-muted">Hanya file gambar (jpg, jpeg, png, gif, webp)</small>
                                     <small class="form-text text-muted">Ukuran Maksimal : 3MB</small>
                                     <small class="form-text text-muted">Rekomendasi : 1200x800 px (Landscape)</small>
                                     @error('thumbnail')
@@ -171,7 +166,7 @@
                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt">
                                     @if($article->document)
                                         <div class="mt-2">
-                                            <a href="{{ asset('storage/'.$article->link_document) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <a href="{{ asset('storage/'.$article->document) }}" target="_blank" class="btn btn-sm btn-outline-info">
                                                 Lihat Lampiran Lama
                                             </a>
                                         </div>
@@ -196,21 +191,36 @@
     </div>
 </div>
 
+{{-- CKEditor --}}
 <script>
     ClassicEditor
-        .create (document.querySelector('#editor'))
-        .catch ( error => {
-            console.error( error );
+        .create(document.querySelector('#editor'))
+        .catch(error => {
+            console.error(error);
         });
 </script>
 
+{{-- Select2 --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('.select2').select2({
-            placeholder: "Pilih tag yang sesuai",
-            width: '100%'
+        $('#tags').select2({
+            tags: true,
+            tokenSeparators: [',', ' '],
+            placeholder: "Ketik tag manual (pisahkan dengan koma/spasi)"
         });
+
+        // Hilangin dropdown suggestion
+        $('.select2-results__options').css('display','none');
     });
 </script>
+
+<style>
+/* Hilangin semua dropdown hasil select2 */
+.select2-results {
+    display: none !important;
+}
+</style>
 
 @endsection

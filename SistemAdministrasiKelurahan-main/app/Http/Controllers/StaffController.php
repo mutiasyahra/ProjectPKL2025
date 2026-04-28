@@ -21,7 +21,7 @@ class StaffController extends Controller
      */
     public function index()
     {
-        $staff = Staff::orderBy('urutan', 'asc')->get();
+        $staff = Staff::with(['villager', 'villager.villagerSex'])->orderBy('urutan', 'asc')->get();
         return view('dashboard.info_kelurahan.kepengurusan.kepengurusan', compact('staff'));
     }
 

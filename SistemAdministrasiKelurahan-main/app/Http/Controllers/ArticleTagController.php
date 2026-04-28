@@ -2,95 +2,105 @@
 
 namespace App\Http\Controllers;
 
-use App\ArticleComment;
-use App\ArticleTag;
-use App\ArticleCategory;
-use Illuminate\Support\Facades\Auth;
-use Alert;
 use App\Article;
+use App\ArticleTag;
+use App\ArticleComment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ArticleTagController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display a listing of tags (dashboard).
      */
     public function index()
     {
-        return view('dashboard.manajemen_artikel.tag.tag'/*, compact('articles')*/);
+        $tags = ArticleTag::orderBy('created_at', 'desc')->paginate(10);
+        return view('dashboard.manajemen_artikel.tag.tag', compact('tags'));
     }
 
-
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Show form create tag.
      */
     public function create()
     {
-        //
+        return view('dashboard.manajemen_artikel.tag.tag-tambah');
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Store new tag.
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name_tag' => 'required|string|unique:article_tags,name_tag',
+        ]);
+
+        ArticleTag::create([
+            'name_tag' => $request->name_tag,
+            'slug' => \Str::slug($request->name_tag),
+            'enabled' => 1,
+        ]);
+
+        Alert::success('Berhasil', 'Tag berhasil ditambahkan');
+        return redirect()->route('manajemen-artikel.tag');
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\ArticleTag  $articleTag
-     * @return \Illuminate\Http\Response
+     * Show all articles by tag (visitor/frontend).
      */
     public function show(ArticleTag $tag)
     {
-        $all_articles = Article::get();
+        $all_articles = Article::where('enabled', 1)->latest()->get();
         $articles = $tag->articles()->where('enabled', 1)->latest()->paginate(6);
-        // dd($articles);
-        $count = $articles->count();
+        $count = $articles->total(); // total semua artikel di tag ini
         $article_comments = ArticleComment::take(5)->latest()->get();
 
-        return view('visitors.artikel.index', compact('all_articles', 'articles', 'tag', 'count', 'article_comments'));
+        return view('visitors.artikel.index', compact(
+            'all_articles',
+            'articles',
+            'tag',
+            'count',
+            'article_comments'
+        ));
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\ArticleTag  $articleTag
-     * @return \Illuminate\Http\Response
+     * Show form edit tag.
      */
     public function edit(ArticleTag $articleTag)
     {
-        return view('dashboard.manajemen_artikel.tag.tag-edit'/*, compact('article', 'categories', 'tags', 'tagCheck')*/);
+        return view('dashboard.manajemen_artikel.tag.tag-edit', compact('articleTag'));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ArticleTag  $articleTag
-     * @return \Illuminate\Http\Response
+     * Update tag.
      */
     public function update(Request $request, ArticleTag $articleTag)
     {
-        //
+        $request->validate([
+            'name_tag' => 'required|string|unique:article_tags,name_tag,' . $articleTag->id,
+        ]);
+
+        $articleTag->update([
+            'name_tag' => $request->name_tag,
+            'slug' => \Str::slug($request->name_tag),
+        ]);
+
+        Alert::success('Berhasil', 'Tag berhasil diperbarui');
+        return redirect()->route('manajemen-artikel.tag');
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\ArticleTag  $articleTag
-     * @return \Illuminate\Http\Response
+     * Delete tag.
      */
     public function destroy(ArticleTag $articleTag)
     {
-        //
+        $articleTag->articles()->detach(); // lepas relasi
+        $articleTag->delete();
+
+        Alert::success('Berhasil', 'Tag berhasil dihapus');
+        return redirect()->route('manajemen-artikel.tag');
     }
 }

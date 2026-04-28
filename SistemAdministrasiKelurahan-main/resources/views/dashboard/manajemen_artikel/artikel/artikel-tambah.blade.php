@@ -24,6 +24,7 @@
                     enctype="multipart/form-data">
                     @csrf
 
+                    {{-- Bagian Artikel --}}
                     <div class="row">
                         <div class=" col-lg-3 mb-2 mt-1">
                             <h4 class="card-title font-weight-bold">Artikel</h4>
@@ -83,7 +84,10 @@
                             </div>
                         </div>
                     </div>
+
                     <div tabindex="-1" class="dropdown-divider mt-4"></div>
+
+                    {{-- Bagian Tag --}}
                     <div class="row">
                         <div class=" col-lg-3">
                             <h4 class="card-title">Tag</h4>
@@ -94,21 +98,8 @@
                                 <label for="tags" class="">Tag</label>
                                 <select name="tags[]" id="tags"
                                     class="mb-2 form-control select2 @error('tags') is-invalid @enderror" multiple>
-                                    {{-- <option disabled selected>Pilih tag yang sesuai</option> --}}
-                                    @forelse ($tags as $tag)
-                                    <option value="{{ $tag->id }}" 
-                                        {{ (collect(old('tags'))->contains($tag->id)) ? 'selected' : '' }}>
-                                        {{ $tag->name_tag }}
-                                    </option>
-                                    @empty
-                                    <option>Data tag belum ada</option>
-                                    @endforelse
+                                    {{-- kosongin, biar user cuma bisa ketik manual --}}
                                 </select>
-                                {{-- <div class="mt-2 ">
-                                    <label for="#" class=" bg-light pl-2 pr-2 p-1  border rounded">Tag
-                                        <a href="#" class="hover-red"><i class="fas fa-times-circle"></i></a>
-                                    </label>
-                                </div> --}}
                                 @error('tags')
                                 <span class="invalid-feedback mt-2" role="alert">
                                     <i>{{ $message }}</i>
@@ -117,7 +108,8 @@
                             </div>
                         </div>
                     </div>
-                    <div tabindex="-1" class="dropdown-divider"></div>
+
+                    {{-- Bagian Gambar --}}
                     <div class="row">
                         <div class=" col-lg-3">
                             <h4 class="card-title">Gambar</h4>
@@ -142,7 +134,10 @@
                             </div>
                         </div>
                     </div>
+
                     <div tabindex="-1" class="dropdown-divider"></div>
+
+                    {{-- Bagian Lampiran --}}
                     <div class="row">
                         <div class=" col-lg-3">
                             <h4 class="card-title">Lampiran</h4>
@@ -177,23 +172,36 @@
     </div>
 </div>
 
+{{-- CKEditor --}}
 <script>
     ClassicEditor
-        .create (document.querySelector('#editor'))
-        .catch ( error => {
-            console.error( error );
+        .create(document.querySelector('#editor'))
+        .catch(error => {
+            console.error(error);
         });
-
-    // CKEDITOR.replace('body');
 </script>
 
+{{-- Select2 --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('.select2').select2({
-            placeholder: "Pilih tag yang sesuai"
+        $('#tags').select2({
+            tags: true,
+            tokenSeparators: [',', ' '],
+            placeholder: "Ketik tag manual (pisahkan dengan koma/spasi)"
         });
+
+        // Hilangin dropdown suggestion
+        $('.select2-results__options').css('display','none');
     });
 </script>
 
+<style>
+/* Hilangin semua dropdown hasil select2 */
+.select2-results {
+    display: none !important;
+}
+</style>
 
 @endsection
