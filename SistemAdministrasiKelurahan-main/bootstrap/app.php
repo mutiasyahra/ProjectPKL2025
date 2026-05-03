@@ -17,6 +17,23 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
+| PHP 8.1+ Compatibility Patch
+|--------------------------------------------------------------------------
+|
+| Laravel 7 is not fully compatible with PHP 8.1+ due to return type 
+| changes in internal PHP interfaces. This hook suppresses deprecation
+| warnings that would otherwise be converted into exceptions.
+|
+*/
+
+$app->afterBootstrapping(\Illuminate\Foundation\Bootstrap\HandleExceptions::class, function ($app) {
+    if (PHP_VERSION_ID >= 80100) {
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
 |
